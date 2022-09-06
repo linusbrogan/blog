@@ -1,4 +1,5 @@
-# Convenient `.exe` invocation in WSL
+# Convenient `.exe` invocation in WSL 
+(2021-01-09)
 
 In Command Prompt and PowerShell, I can invoke executables without the file extensions (e.g., `notepad note.txt` vs `notepad.exe note.txt`).
 To reproduce this behavior in WSL, my first thought was just to `alias` every `.exe` I might want to use, but that is inconvenient.
