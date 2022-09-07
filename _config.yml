@@ -13,21 +13,24 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-author: 'Linus Brogan'
-title: Linus Brogan
-email: hey@linusbrogan.com
+author:
+  name: "Linus Brogan"
+  email: "hey@linusbrogan.com"
+title: Linus BLOGan
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.linusbrogan.com" # the base hostname & protocol for your site, e.g. http://example.com
-github_username:  linusbrogan
-linkedin_username: linusbrogan
-twitter_username: linusbrogan
 
 # Build settings
 markdown: kramdown
 theme: minima
 minima:
-  skin: dark
+  skin: auto
   date_format: "%F"
+  social_links:
+    twitter: linusbrogan
+    github: linusbrogan
+    linkedin: linusbrogan
+show_excerpts: true
 plugins:
   - jekyll-feed
 
