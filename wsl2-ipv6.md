@@ -1,0 +1,85 @@
+# IPv6 Connectivity in WSL2
+(2022-09-06)
+
+I am a big fan of WSL.
+One of my biggest complaints about WSL2 (mainly on principle) is that it does not support IPv6.
+But with a bit of tweaking, we can make it work.
+
+## Approach 1: WireGuard
+We will use an IPv6 tunnelbroker.
+WireGuard makes this easy.
+
+1. *Check the kernel.*
+In WSL, run `uname -srm` to check the kernel version.
+Kernels [since 5.6](https://duo.com/decipher/wireguard-vpn-added-to-linux-kernel) include WireGuard.
+If you have an older kernel, see how to replace the kernel below.
+
+2. *Install WireGuard.*
+Run `sudo apt install wireguard`.
+
+3. *Create a tunnel.*
+Create an account at [route48.org](https://route48.org/).
+Create a new IPv6 tunnel.
+Set the tunnel type to WireGuard and pick a server location near you.
+Click the config icon and copy the configuration into `/etc/wireguard/wg0.conf`.
+Run `sudo wg-quick up wg0` to start the tunnel.
+
+4. *Connect.*
+Test your connection with `ping6 google.com`.
+It should work now.
+
+5. *Start automatically.*
+Edit `/etc/wsl.conf` to contain
+```
+[boot]
+command="wg-quick up wg0"
+```
+This will start the tunnel every time the WSL instance starts.
+The `[boot]` option is [new](https://docs.microsoft.com/en-us/windows/wsl/wsl-config) in Windows 11.
+
+## Approach 2: Tailscale
+Tailscale is magic.
+We can share another device's IPv6 connection with Tailscale.
+
+1. *Update the kernel.*
+Tailscale [needs](https://github.com/tailscale/tailscale/issues/3420) `CONFIG_IPV6_MULTIPLE_TABLES`, so we have to build the kernel.
+(If you trust me, you can [download my kernel](https://github.com/linusbrogan/WSL2-Linux-Kernel/releases).)
+Otherwise clone the [WSL2 kernel](https://github.com/microsoft/WSL2-Linux-Kernel).
+Add a line `CONFIG_IPV6_MULTIPLE_TABLES=y` to `Microsoft/config-wsl`, and edit the `CONFIG_LOCALVERSION` line with a name you will recognize.
+Follow the build instructions in the [README](https://github.com/microsoft/WSL2-Linux-Kernel#readme).
+Download/copy `vmlinux` to `C:\vmlinux`.
+Create a file `%userprofile%\.wslconfig` containing
+```
+[wsl2]
+kernel=C:\\vmlinux
+```
+(Note the double backslashes in the path.)
+
+2. *Create an exit node.*
+[Install Tailscale](https://tailscale.com/kb/installation/) on a device with an IPv6 connection.
+This might even be your Windows machine.
+Configure it as an [exit node](https://tailscale.com/kb/1103/exit-nodes/).
+Save its Tailscale IP address (`100.x.y.z`) for later.
+
+3. *Start Tailscale automatically.*
+[Install Tailscale](https://tailscale.com/kb/1031/install-linux/) in WSL.
+Edit `/etc/wsl.conf` to contain
+```
+[boot]
+command="PATH=$PATH tailscaled"
+```
+This will start `tailscaled` every time the WSL instance starts.
+
+4. *Restart WSL*.
+Run `wsl.exe --shutdown`.
+Check that no WSL2 distros are running with `wsl.exe -l -v`.
+Then in WSL, run `uname -srm` to check that the new kernel is running.
+It should have the version string you set in the config file.
+
+5. *Route traffic through the exit node.*
+Check that `tailscaled` is running with `ps aux`.
+Run `sudo tailscale up --exit-node=100.x.y.z --exit-node-allow-lan-access`, replacing `100.x.y.z` with the exit node's IP address from above.
+
+6. *Connect.*
+Test your connection with `ping6 google.com`.
+It should work now.
