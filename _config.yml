@@ -19,6 +19,9 @@ email: "hey@linusbrogan.com"
 title: "Linus BLOGan"
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.linusbrogan.com" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: linusbrogan
+github_username: linusbrogan
+linkedin_username: linusbrogan
 
 # Build settings
 markdown: kramdown
