@@ -26,7 +26,8 @@ twitter_username: linusbrogan
 markdown: kramdown
 theme: minima
 minima:
-  skin:dark
+  skin: dark
+  date_format: "%F"
 plugins:
   - jekyll-feed
 
